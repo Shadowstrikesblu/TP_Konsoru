@@ -20,9 +20,8 @@ public class BDDRequests {
                 Class.forName("org.postgresql.Driver");
                     
                 // Création de la connexion à la base de données
-                Connection dbConn = DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
 
-                return dbConn;
+                return DriverManager.getConnection(dbConnUrl, dbUserName, dbPassword);
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -31,7 +30,7 @@ public class BDDRequests {
     }
 
     public void bdd_creneaux(int year, int month, int day){
-        String dateTest = String.valueOf(day)+'-'+String.valueOf(month)+'-'+String.valueOf(year);
+        String dateTest = String.valueOf(day)+'-'+ month +'-'+ year;
         // La requête est celle qui était dans ckonsoru.bdd
         String requetesql = "WITH creneauxDisponibles AS (SELECT vet_nom, generate_series(?::date+dis_debut, ?::date+dis_fin-'00:20:00'::time, '20 minutes'::interval) debut FROM disponibilite INNER JOIN veterinaire ON veterinaire.vet_id = disponibilite.vet_id WHERE dis_jour = EXTRACT('DOW' FROM ?::date) ORDER BY vet_nom, dis_id), creneauxReserves AS (SELECT vet_nom, rv_debut debut FROM rendezvous INNER JOIN veterinaire ON veterinaire.vet_id = rendezvous.vet_id WHERE rv_debut BETWEEN ?::date AND ?::date +'23:59:59'::time), creneauxRestants AS (SELECT * FROM creneauxDisponibles EXCEPT SELECT * FROM creneauxReserves) SELECT * FROM creneauxRestants ORDER BY vet_nom, debut";
         try {
